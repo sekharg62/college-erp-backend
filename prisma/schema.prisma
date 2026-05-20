@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  name      String?
+  role      Role     @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Institute {
+  id             String   @id @default(uuid()) @db.Uuid
+  name           String
+  instituteCode  String   @unique
+  location       String
+  contactDetails String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  admins         Admin[]
+  teachers       Teacher[]
+  students       Student[]
+}
+
+model Admin {
+  id          String   @id @default(uuid()) @db.Uuid
+  instituteId String   @db.Uuid
+  name        String
+  phoneNo     String
+  password    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  teachers  Teacher[]
+  students  Student[]
+
+  @@index([instituteId])
+}
+
+model Teacher {
+  id          String   @id @default(uuid()) @db.Uuid
+  instituteId String   @db.Uuid
+  adminId     String   @db.Uuid
+  name        String
+  phoneNo     String
+  password    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  admin     Admin     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  students  Student[]
+
+  @@index([instituteId])
+  @@index([adminId])
+}
+
+model Student {
+  id          String   @id @default(uuid()) @db.Uuid
+  teacherId   String   @db.Uuid
+  adminId     String   @db.Uuid
+  instituteId String   @db.Uuid
+  phoneNo     String
+  password    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  teacher   Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  admin     Admin     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@index([adminId])
+  @@index([instituteId])
+}

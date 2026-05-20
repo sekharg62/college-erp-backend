@@ -1,0 +1,15 @@
+-- CreateTable
+CREATE TABLE "Institute" (
+    "id" UUID NOT NULL,
+    "name" TEXT NOT NULL,
+    "instituteCode" TEXT NOT NULL,
+    "location" TEXT NOT NULL,
+    "contactDetails" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Institute_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Institute_instituteCode_key" ON "Institute"("instituteCode");
