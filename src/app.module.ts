@@ -4,6 +4,7 @@ import configuration from './config/configuration';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { InstituteModule } from './modules/institute/institute.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -16,6 +17,7 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
     HealthModule,
     InstituteModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
