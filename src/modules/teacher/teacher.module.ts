@@ -1,12 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import type { StringValue } from 'ms';
+import { TeacherJwtAuthGuard } from './guards/teacher-jwt-auth.guard';
+import { TeacherJwtStrategy } from './strategies/teacher-jwt.strategy';
 import { TeacherController } from './teacher.controller';
 import { TeacherService } from './teacher.service';
 
 @Module({
   imports: [
+    PassportModule.register({ defaultStrategy: 'teacher-jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -21,7 +25,7 @@ import { TeacherService } from './teacher.service';
     }),
   ],
   controllers: [TeacherController],
-  providers: [TeacherService],
-  exports: [TeacherService],
+  providers: [TeacherService, TeacherJwtStrategy, TeacherJwtAuthGuard],
+  exports: [TeacherService, TeacherJwtAuthGuard, JwtModule],
 })
 export class TeacherModule {}

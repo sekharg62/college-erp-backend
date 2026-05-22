@@ -7,6 +7,7 @@ import { HealthModule } from './health/health.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { DepartmentModule } from './modules/department/department.module';
 import { InstituteModule } from './modules/institute/institute.module';
+import { StudentModule } from './modules/student/student.module';
 import { TeacherModule } from './modules/teacher/teacher.module';
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -22,6 +23,7 @@ import { PrismaModule } from './prisma/prisma.module';
     AdminModule,
     DepartmentModule,
     TeacherModule,
+    StudentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
