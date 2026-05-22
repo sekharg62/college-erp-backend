@@ -3,12 +3,16 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import { BCRYPT_ROUNDS } from '../../common/constants/auth.constants';
+import { StudentJwtPayload } from '../../common/interfaces/jwt-payload.interface';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateStudentDto } from './dto/create-student.dto';
+import { LoginStudentDto } from './dto/login-student.dto';
 
 export type AuthenticatedTeacher = {
   id: string;
@@ -21,7 +25,42 @@ export type AuthenticatedTeacher = {
 
 @Injectable()
 export class StudentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async login(dto: LoginStudentDto) {
+    const student = await this.prisma.db.student.findUnique({
+      where: { rollNo: dto.rollNo },
+    });
+
+    if (!student) {
+      throw new UnauthorizedException('Invalid roll number or password');
+    }
+
+    const passwordMatches = await bcrypt.compare(dto.password, student.password);
+    if (!passwordMatches) {
+      throw new UnauthorizedException('Invalid roll number or password');
+    }
+
+    const payload: StudentJwtPayload = {
+      sub: student.id,
+      instituteId: student.instituteId,
+      adminId: student.adminId,
+      teacherId: student.teacherId,
+      rollNo: student.rollNo,
+      role: 'STUDENT',
+    };
+
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    return {
+      accessToken,
+      tokenType: 'Bearer',
+      student: this.omitPassword(student),
+    };
+  }
 
   async create(dto: CreateStudentDto, teacher: AuthenticatedTeacher) {
     if (dto.instituteId !== teacher.instituteId) {

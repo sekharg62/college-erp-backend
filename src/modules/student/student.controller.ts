@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { TeacherJwtAuthGuard } from '../teacher/guards/teacher-jwt-auth.guard';
 import { CreateStudentDto } from './dto/create-student.dto';
+import { LoginStudentDto } from './dto/login-student.dto';
 import {
   AuthenticatedTeacher,
   StudentService,
@@ -9,6 +10,11 @@ import {
 @Controller('students')
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
+
+  @Post('login')
+  login(@Body() dto: LoginStudentDto) {
+    return this.studentService.login(dto);
+  }
 
   @Get()
   @UseGuards(TeacherJwtAuthGuard)

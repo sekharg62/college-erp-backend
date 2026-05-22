@@ -11,3 +11,12 @@ export interface TeacherJwtPayload {
   departmentId: string;
   role: 'TEACHER';
 }
+
+export interface StudentJwtPayload {
+  sub: string;
+  instituteId: string;
+  adminId: string;
+  teacherId: string;
+  rollNo: string;
+  role: 'STUDENT';
+}
