@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { Prisma } from '.prisma/client';
+import { Prisma } from '@prisma/client';
 import { BCRYPT_ROUNDS } from '../../common/constants/auth.constants';
 import { AdminJwtPayload } from '../../common/interfaces/jwt-payload.interface';
 import { PrismaService } from '../../prisma/prisma.service';

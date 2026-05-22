@@ -5,7 +5,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { DepartmentModule } from './modules/department/department.module';
 import { InstituteModule } from './modules/institute/institute.module';
+import { TeacherModule } from './modules/teacher/teacher.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -18,6 +20,8 @@ import { PrismaModule } from './prisma/prisma.module';
     HealthModule,
     InstituteModule,
     AdminModule,
+    DepartmentModule,
+    TeacherModule,
   ],
   controllers: [AppController],
   providers: [AppService],

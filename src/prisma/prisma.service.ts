@@ -6,21 +6,22 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '.prisma/client';
+import { PrismaClient } from '@prisma/client';
+import type { PrismaClient as GeneratedPrismaClient } from '.prisma/client';
 import { Pool } from 'pg';
 
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
   private readonly pool: Pool;
-  /** Generated Prisma client — use this for queries (e.g. `prisma.db.user.findMany()`). */
-  readonly db: PrismaClient;
+  /** Generated Prisma client — use for queries (e.g. `prisma.db.department.findMany()`). */
+  readonly db: GeneratedPrismaClient;
 
   constructor(configService: ConfigService) {
     const connectionString = configService.getOrThrow<string>('databaseUrl');
     this.pool = new Pool({ connectionString });
     const adapter = new PrismaPg(this.pool);
-    this.db = new PrismaClient({ adapter });
+    this.db = new PrismaClient({ adapter }) as GeneratedPrismaClient;
   }
 
   async onModuleInit() {
