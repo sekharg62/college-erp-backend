@@ -11,6 +11,12 @@ enum Role {
   MANAGER
 }
 
+enum StudentActivitySubmitStatus {
+  PENDING
+  APPROVE
+  REJECT
+}
+
 model User {
   id        String   @id @default(uuid()) @db.Uuid
   email     String   @unique
@@ -83,13 +89,36 @@ model Student {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  teacher   Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  admin     Admin     @relation(fields: [adminId], references: [id], onDelete: Cascade)
-  institute Institute @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  teacher          Teacher                 @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  admin            Admin                   @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  institute        Institute               @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  activitySubmits  StudentActivitySubmit[]
 
   @@index([teacherId])
   @@index([adminId])
   @@index([instituteId])
+}
+
+model StudentActivitySubmit {
+  id            String                      @id @default(uuid()) @db.Uuid
+  studentId     String                      @db.Uuid
+  activityId    String
+  subActivityId String
+  academicYear  String
+  points        Int
+  proofUrl      String
+  status        StudentActivitySubmitStatus @default(PENDING)
+  notes         String?
+  createdAt     DateTime                    @default(now())
+  updatedAt     DateTime                    @updatedAt
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([activityId])
+  @@index([subActivityId])
+  @@index([status])
+  @@map("student_activity_submit")
 }
 
 model Department {
