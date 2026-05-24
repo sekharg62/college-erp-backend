@@ -11,13 +11,16 @@ import {
   Post,
   Put,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
+import { TeacherJwtAuthGuard } from './guards/teacher-jwt-auth.guard';
 import { FindTeachersQueryDto } from './dto/find-teachers-query.dto';
 import { LoginTeacherDto } from './dto/login-teacher.dto';
 import { PatchTeacherDto } from './dto/patch-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
-import { TeacherService } from './teacher.service';
+import { AuthenticatedTeacher, TeacherService } from './teacher.service';
 
 @Controller('teachers')
 export class TeacherController {
@@ -36,6 +39,12 @@ export class TeacherController {
   @Get()
   findAllByAdmin(@Query() query: FindTeachersQueryDto) {
     return this.teacherService.findAllByAdmin(query.adminId);
+  }
+
+  @Get('dashboard')
+  @UseGuards(TeacherJwtAuthGuard)
+  getDashboard(@Req() req: { user: AuthenticatedTeacher }) {
+    return this.teacherService.getDashboard(req.user);
   }
 
   @Get(':id')

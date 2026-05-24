@@ -15,6 +15,15 @@ import { LoginTeacherDto } from './dto/login-teacher.dto';
 import { PatchTeacherDto } from './dto/patch-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
 
+export type AuthenticatedTeacher = {
+  id: string;
+  instituteId: string;
+  adminId: string;
+  departmentId: string;
+  name: string;
+  phoneNo: string;
+};
+
 @Injectable()
 export class TeacherService {
   constructor(
@@ -212,6 +221,44 @@ export class TeacherService {
         `Department with id "${departmentId}" not found`,
       );
     }
+  }
+
+  async getDashboard(teacher: AuthenticatedTeacher) {
+    const record = await this.prisma.db.teacher.findUnique({
+      where: { id: teacher.id },
+      select: {
+        id: true,
+        name: true,
+        phoneNo: true,
+        instituteId: true,
+        adminId: true,
+        institute: {
+          select: { id: true, name: true },
+        },
+        admin: {
+          select: { id: true, name: true },
+        },
+        department: {
+          select: { id: true, name: true },
+        },
+        
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`Teacher with id "${teacher.id}" not found`);
+    }
+
+    const { department, institute, admin, ...teacherInfo } = record;
+
+    return {
+      teacher: {
+        ...teacherInfo,
+        institute,
+        admin,
+        department,
+      },
+    };
   }
 
   private omitPassword<T extends { password: string }>(teacher: T) {

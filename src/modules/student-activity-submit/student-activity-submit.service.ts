@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, StudentActivitySubmitStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateStudentActivitySubmitDto } from './dto/create-student-activity-submit.dto';
 
@@ -57,6 +57,40 @@ export class StudentActivitySubmitService {
       },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async approve(teacher: AuthenticatedTeacher, ids: string[]) {
+    const submissions = await this.prisma.db.studentActivitySubmit.findMany({
+      where: {
+        id: { in: ids },
+        student: { teacherId: teacher.id },
+      },
+      /* include: {
+        student: {
+          select: {
+            id: true,
+            name: true,
+            rollNo: true,
+            admissionYear: true,
+          },
+        },
+      }, */
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (submissions.length === 0) {
+      throw new NotFoundException('No matching submissions found to approve');
+    }
+
+    await this.prisma.db.studentActivitySubmit.updateMany({
+      where: { id: { in: submissions.map((s) => s.id) } },
+      data: { status: StudentActivitySubmitStatus.APPROVE },
+    });
+
+    return submissions.map((submission) => ({
+      ...submission,
+      status: StudentActivitySubmitStatus.APPROVE,
+    }));
   }
 
   async findAllByTeacherAndYear(
