@@ -110,6 +110,7 @@ export class StudentActivitySubmitService {
             rollNo: true,
             phoneNo:true,
             admissionYear: true,
+            signature: true,
           },
         },
       },

@@ -13,6 +13,8 @@ import { StudentJwtPayload } from '../../common/interfaces/jwt-payload.interface
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { LoginStudentDto } from './dto/login-student.dto';
+import { PatchStudentDto } from './dto/patch-student.dto';
+import { UpdateStudentDto } from './dto/update-student.dto';
 
 export type AuthenticatedTeacher = {
   id: string;
@@ -21,6 +23,15 @@ export type AuthenticatedTeacher = {
   departmentId: string;
   name: string;
   phoneNo: string;
+};
+
+export type AuthenticatedStudent = {
+  id: string;
+  instituteId: string;
+  adminId: string;
+  teacherId: string;
+  rollNo: string;
+  name: string;
 };
 
 @Injectable()
@@ -109,6 +120,81 @@ export class StudentService {
     return students.map((student) => this.omitPassword(student));
   }
 
+  async update(
+    id: string,
+    dto: UpdateStudentDto,
+    teacher: AuthenticatedTeacher,
+  ) {
+    await this.findOneForTeacherOrThrow(id, teacher.id);
+
+    const hashedPassword = await bcrypt.hash(dto.password, BCRYPT_ROUNDS);
+
+    try {
+      const student = await this.prisma.db.student.update({
+        where: { id },
+        data: {
+          name: dto.name,
+          rollNo: dto.rollNo,
+          admissionYear: dto.admissionYear,
+          phoneNo: dto.phoneNo,
+          password: hashedPassword,
+          signature: dto.signature,
+        },
+      });
+
+      return this.omitPassword(student);
+    } catch (error) {
+      this.handlePrismaError(error, id);
+    }
+  }
+
+  async patchByStudent(student: AuthenticatedStudent, dto: PatchStudentDto) {
+    if (Object.keys(dto).length === 0) {
+      const record = await this.findOneOrThrow(student.id);
+      return this.omitPassword(record);
+    }
+
+    await this.findOneOrThrow(student.id);
+
+    const { password, ...rest } = dto;
+    const data: Prisma.StudentUpdateInput = { ...rest };
+
+    if (password) {
+      data.password = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    }
+
+    try {
+      const record = await this.prisma.db.student.update({
+        where: { id: student.id },
+        data,
+      });
+
+      return this.omitPassword(record);
+    } catch (error) {
+      this.handlePrismaError(error, student.id);
+    }
+  }
+
+  private async findOneOrThrow(id: string) {
+    const student = await this.prisma.db.student.findUnique({
+      where: { id },
+    });
+    if (!student) {
+      throw new NotFoundException(`Student with id "${id}" not found`);
+    }
+    return student;
+  }
+
+  private async findOneForTeacherOrThrow(id: string, teacherId: string) {
+    const student = await this.prisma.db.student.findFirst({
+      where: { id, teacherId },
+    });
+    if (!student) {
+      throw new NotFoundException(`Student with id "${id}" not found`);
+    }
+    return student;
+  }
+
   private async ensureInstituteExists(instituteId: string) {
     const institute = await this.prisma.db.institute.findUnique({
       where: { id: instituteId },
@@ -142,8 +228,11 @@ export class StudentService {
     return rest;
   }
 
-  private handlePrismaError(error: unknown): never {
+  private handlePrismaError(error: unknown, id?: string): never {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        throw new NotFoundException(`Student with id "${id}" not found`);
+      }
       if (error.code === 'P2002') {
         throw new ConflictException('Roll number already exists');
       }
