@@ -63,6 +63,7 @@ model Teacher {
   name         String
   phoneNo      String
   password     String
+  signature    String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -86,6 +87,7 @@ model Student {
   admissionYear  String
   phoneNo        String?
   password       String
+  signature      String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

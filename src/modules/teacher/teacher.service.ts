@@ -65,7 +65,10 @@ export class TeacherService {
       throw new UnauthorizedException('Invalid phone number or password');
     }
 
-    const passwordMatches = await bcrypt.compare(dto.password, teacher.password);
+    const passwordMatches = await bcrypt.compare(
+      dto.password,
+      teacher.password,
+    );
     if (!passwordMatches) {
       throw new UnauthorizedException('Invalid phone number or password');
     }
@@ -105,9 +108,11 @@ export class TeacherService {
 
   async update(id: string, dto: UpdateTeacherDto) {
     await this.findOneOrThrow(id);
-    await this.ensureDepartmentExists(dto.departmentId);
-
-    const hashedPassword = await bcrypt.hash(dto.password, BCRYPT_ROUNDS);
+    //await this.ensureDepartmentExists(dto.departmentId);
+    let hashedPassword: string | undefined;
+    if (dto.password) {
+      hashedPassword = await bcrypt.hash(dto.password, BCRYPT_ROUNDS);
+    }
 
     try {
       const teacher = await this.prisma.db.teacher.update({
@@ -117,6 +122,7 @@ export class TeacherService {
           name: dto.name,
           phoneNo: dto.phoneNo,
           password: hashedPassword,
+          signature: dto.signature,
         },
       });
 
@@ -241,7 +247,6 @@ export class TeacherService {
         department: {
           select: { id: true, name: true },
         },
-        
       },
     });
 

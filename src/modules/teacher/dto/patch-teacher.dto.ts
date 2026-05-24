@@ -26,4 +26,8 @@ export class PatchTeacherDto {
   @MinLength(6)
   @MaxLength(128)
   password?: string;
+
+  @IsOptional()
+  @IsString()
+  signature?: string;
 }

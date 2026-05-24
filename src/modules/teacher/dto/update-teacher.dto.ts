@@ -1,5 +1,6 @@
 import {
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   MaxLength,
@@ -8,21 +9,25 @@ import {
 
 export class UpdateTeacherDto {
   @IsUUID()
-  departmentId: string;
+  departmentId?: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
-  name: string;
+  name?: string;
 
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)
-  phoneNo: string;
+  phoneNo?: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
   @MaxLength(128)
-  password: string;
+  password?: string;
+
+  @IsString()
+  @IsOptional()
+  signature?: string;
 }
