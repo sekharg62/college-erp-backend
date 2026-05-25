@@ -10,6 +10,7 @@ import { InstituteModule } from './modules/institute/institute.module';
 import { StudentActivitySubmitModule } from './modules/student-activity-submit/student-activity-submit.module';
 import { StudentModule } from './modules/student/student.module';
 import { TeacherModule } from './modules/teacher/teacher.module';
+import { UserModule } from './modules/user/user.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -26,6 +27,7 @@ import { PrismaModule } from './prisma/prisma.module';
     TeacherModule,
     StudentModule,
     StudentActivitySubmitModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,3 +1,11 @@
+import { Role } from '@prisma/client';
+
+export interface UserJwtPayload {
+  sub: string;
+  email: string;
+  role: Role;
+}
+
 export interface AdminJwtPayload {
   sub: string;
   instituteId: string;
