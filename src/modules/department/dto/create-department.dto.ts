@@ -5,4 +5,14 @@ export class CreateDepartmentDto {
   @IsNotEmpty()
   @MaxLength(255)
   name: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(50)
+  departmentCode: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(100)
+  slug: string;
 }

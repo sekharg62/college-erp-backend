@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateDepartmentDto } from './dto/create-department.dto';
@@ -75,6 +79,11 @@ export class DepartmentService {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2025') {
         throw new NotFoundException(`Department with id "${id}" not found`);
+      }
+      if (error.code === 'P2002') {
+        throw new ConflictException(
+          'Department code or slug already exists',
+        );
       }
     }
     throw error;

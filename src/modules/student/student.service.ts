@@ -73,6 +73,35 @@ export class StudentService {
     };
   }
 
+  async getMe(student: AuthenticatedStudent) {
+    const record = await this.prisma.db.student.findUnique({
+      where: { id: student.id },
+      select: {
+        id: true,
+        name: true,
+        rollNo: true,
+        admissionYear: true,
+        phoneNo: true,
+        signature: true,
+        teacherId: true,
+        instituteId: true,
+        institute: { select: { name: true } },
+        teacher: {
+          select: {
+            name: true,
+            department: { select: { name: true } },
+          },
+        },
+      },
+    });
+
+    if (!record) {
+      throw new NotFoundException(`Student with id "${student.id}" not found`);
+    }
+
+    return record;
+  }
+
   async create(dto: CreateStudentDto, teacher: AuthenticatedTeacher) {
     if (dto.instituteId !== teacher.instituteId) {
       throw new BadRequestException(

@@ -47,6 +47,12 @@ export class StudentController {
     return this.studentService.update(id, dto, req.user);
   }
 
+  @Get('me')
+  @UseGuards(StudentJwtAuthGuard)
+  getMe(@Req() req: { user: AuthenticatedStudent }) {
+    return this.studentService.getMe(req.user);
+  }
+
   @Patch('me')
   @UseGuards(StudentJwtAuthGuard)
   patchMe(
